@@ -1,9 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ProfileScreen from '../../screens/profile/profileScreen.js';
-import MapStack from "../stacks/MapStack";
-import ProfileStack from "../stacks/ProfileStack";
-import SettingsStack from "../stacks/SettingsStack";
+import MapStack from "../stacks/mapStack";
+import ProfileStack from "../stacks/profileStack";
+import SettingsStack from "../stacks/settingsStack";
 import { Ionicons } from '@expo/vector-icons';
 
 export default function MyTabs() {

@@ -5,7 +5,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { createStackNavigator } from '@react-navigation/stack';
 import {useEffect, useState} from 'react';
 import MyTabs from "./src/navigation/tabs/myTabs";
-import AuthStack from "./src/navigation/stacks/AuthStack";
+import AuthStack from "./src/navigation/stacks/authStack";
 
 export default function App() {
     const Stack = createStackNavigator();
