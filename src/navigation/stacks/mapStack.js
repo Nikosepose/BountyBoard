@@ -1,8 +1,8 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import MapMain from '../../screens/map/mapMain';
-import MapView from "../../screens/map/mapView";
-import ListView from "../../screens/map/listView";
+import MapMain from '../../screens/mapScreens/mapMain';
+import MapView from "../../screens/mapScreens/mapView";
+import ListView from "../../screens/mapScreens/listView";
 
 export default function MapStack() {
     const Stack = createStackNavigator();

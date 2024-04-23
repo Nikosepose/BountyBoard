@@ -16,13 +16,13 @@ const AuthScreen = () => {
                 .then(userCredential => {
                     // User signed in
                     console.log(userCredential);
-                    // Create a user profile in Firestore
+                    // Create a user profileScreens in Firestore
                     const userRef = doc(db, "users", userCredential.user.uid);
                     setDoc(userRef, {
                         email: email,
                         createdAt: new Date()
                     }).then(() => {
-                        console.log("User profile created in Firestore");
+                        console.log("User profileScreens created in Firestore");
                     }).catch(error => {
                         console.error("Error writing document: ", error);
                     });

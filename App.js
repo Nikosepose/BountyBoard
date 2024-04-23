@@ -4,7 +4,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { createStackNavigator } from '@react-navigation/stack';
 import {useEffect, useState} from 'react';
-import MyTabs from "./src/navigation/tabs/myTabs";
+import MyTabs from "./src/navigation/bottomTabs/myTabs";
 import AuthStack from "./src/navigation/stacks/authStack";
 
 export default function App() {
@@ -31,7 +31,7 @@ export default function App() {
           <Stack.Navigator>
               {
                   user ? (
-                      // If the user is logged in, go directly to the main tabs
+                      // If the user is logged in, go directly to the main bottomTabs
                       <Stack.Screen name="Main" component={MyTabs} options={{ headerShown: false }} />
                   ) : (
                       // If not logged in, show the authentication stack

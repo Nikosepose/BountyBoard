@@ -2,7 +2,6 @@ import React, { useState, useCallback, useLayoutEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, SafeAreaView, Alert , FlatList, TouchableOpacity} from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { fetchBountyBoards }  from '../../../functions/firebase/firestoreDB';
-import BoardList from "../../components/common/buttonTables";
 
 const ListView = () => {
     const navigation = useNavigation();
