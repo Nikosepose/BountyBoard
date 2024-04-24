@@ -11,6 +11,7 @@ export default function MapStack() {
             <Stack.Screen name="Main" component={MapMain} />
             <Stack.Screen name="MapView" component={MapView} />
             <Stack.Screen name="ListView" component={ListView} />
+            <Stack.Screen name="ListViewSub" component={ListView} />
         </Stack.Navigator>
     );
 }
