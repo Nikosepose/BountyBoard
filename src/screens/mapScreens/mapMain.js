@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, FlatList, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { WebView } from 'react-native-webview';
 
 const MapMain = () => {
     const navigation = useNavigation();

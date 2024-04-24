@@ -1,38 +1,78 @@
 import React from 'react';
-import { StyleSheet, View, Image, TouchableOpacity, Alert } from 'react-native';
-// Import gesture and animation libraries
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { WebView } from 'react-native-webview';
 
-export default function MapView() {
-    const onHotspotPress = () => {
-        Alert.alert('Hotspot Pressed', 'You tapped on a hotspot!');
-    };
+const MapView = () => {
+    const navigation = useNavigation();
+
+    const mapHtmlContent = `
+      <head>
+    <meta name="viewport" id="vp" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
+    <meta charset="utf-8" />
+
+
+    <link rel="stylesheet" href="https://api.mazemap.com/js/v2.0.114/mazemap.min.css">
+    <script type='text/javascript' src='https://api.mazemap.com/js/v2.0.114/mazemap.min.js'></script>
+
+    <style>
+        body { margin:0px; padding:0px; width: 100%; height:100%; }
+    </style>
+</head>
+<body>
+<div id="map" class="mazemap"></div>
+
+<script>
+    var map = new Mazemap.Map({
+        // container id specified in the HTML
+        container: 'map',
+
+        campuses: 121,
+
+        // initial position in lngLat format
+        center: {lng: 13.270286316716465, lat: 52.502217640505705},
+
+        // initial zoom
+        zoom: 18,
+
+        zLevel: 3
+    });
+
+    // Add zoom and rotation controls to the map.
+    map.addControl(new Mazemap.mapboxgl.NavigationControl());
+</script>
+</body>
+    `;
 
     return (
         <View style={styles.container}>
-            <Image source={require('../../assets/ProtoSchool.png')} style={styles.imageStyle} />
-            {/* Example hotspot */}
-            <TouchableOpacity style={styles.hotspot} onPress={onHotspotPress} />
+            <WebView
+                originWhitelist={['*']}
+                source={{ html: mapHtmlContent }}
+                style={{ flex: 1 }}
+            />
+            <TouchableOpacity
+                style={styles.item}
+                onPress={() => navigation.navigate('ListView')}
+            >
+                <Text style={styles.title}>List View</Text>
+            </TouchableOpacity>
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
-        // Container styles
+        flex: 1,
     },
-    imageStyle: {
-        // Set your image styles here
-        width: '100%', // Example style
-        height: 200, // Example style
-        resizeMode: 'contain', // Example style
+    item: {
+        padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#cccccc',
     },
-    hotspot: {
-        position: 'absolute',
-        width: 100, // Set appropriately
-        height: 100, // Set appropriately
-        top: 50, // Position as needed
-        left: 50, // Position as needed
-        backgroundColor: 'transparent',
-        // You might want to give some visual feedback or make it slightly visible for development
-    },
+    title: {
+        fontSize: 18,
+    }
 });
+
+export default MapView;
