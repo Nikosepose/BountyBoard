@@ -9,6 +9,7 @@ import ChatStack from "../stacks/chatStack";
 import ProfileStack from "../stacks/profileStack";
 import SettingsStack from "../stacks/settingsStack";
 
+
 export default function MyTabs() {
     const Tab = createBottomTabNavigator();
     return (
