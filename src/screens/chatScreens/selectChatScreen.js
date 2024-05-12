@@ -5,7 +5,7 @@ import { auth, db } from "../../config/firebaseConfig";
 import { useNavigation } from "@react-navigation/native";
 
 
-const SelectChatScreen = ({ navigation }) => {
+const SelectChatScreen = () => {
     const screenNavigation = useNavigation();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);

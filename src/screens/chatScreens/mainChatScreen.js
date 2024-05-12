@@ -48,11 +48,13 @@ const MainChatScreen = () => {
             console.log("Something went wrong");
             return;
         }
+        console.log("Current user:", auth.currentUser.uid);
+        console.log("Selected user ID:", selectedUserId);
 
         const collectionRef = collection(db, 'chats');
         const q = query(collectionRef,
-            where('user._id', '==', auth.currentUser.uid),
-            where('receivedUser._id', '==', selectedUserId),
+            where('user._id', 'in', [auth.currentUser.uid, selectedUserId]),
+            where('receivedUser._id', 'in', [selectedUserId, auth.currentUser.uid]),
             orderBy('createdAt', 'asc')
         );
 
@@ -61,10 +63,9 @@ const MainChatScreen = () => {
             const loadedMessages = snapshot.docs.map(doc => ({
                 ...doc.data(),
                 id: doc.id,
-                type: doc.data().user._id === auth.currentUser?.uid ? 'sent' : 'received',
+                type: doc.data().user._id === auth.currentUser?.uid ? 'sent' : 'received' ,
             }));
             setMessages(loadedMessages);
-            console.log("Message loaded: ", loadedMessages);
         }, error => {
             console.error("Failed to fetch chat: ", error);
         });
