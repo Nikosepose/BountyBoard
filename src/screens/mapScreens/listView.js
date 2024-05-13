@@ -1,53 +1,132 @@
-import React, { useState, useCallback, useLayoutEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, SafeAreaView, Alert , FlatList, TouchableOpacity} from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { fetchBountyBoards }  from '../../../functions/firebase/firestoreDB';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, SafeAreaView, Alert, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import boardsData from '../../data/data.json';
+import { postTask, fetchTasks} from "../../../functions/firebase/bountyboard";
 
 const ListView = () => {
-    const navigation = useNavigation();
+    const [activeBoards, setActiveBoards] = useState(boardsData.boards);
+
+    const [selectedBoard, setSelectedBoard] = useState(null);
+    const [selectedCourse, setSelectedCourse] = useState(null);
+
+    const [tasks, setTasks] = useState([]);
+
+    const [taskTitle, setTaskTitle] = useState('');
+    const [taskDescription, setTaskDescription] = useState('');
 
     const [isBountyHunter, setIsBountyHunter] = useState(false);
-    const toggleBountyHunterMode = () => setIsBountyHunter(!isBountyHunter);
-    const [ActiveBoards, setActiveBoards] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    const getBountyBoards = async ( ) => {
+    const toggleBountyHunterMode = () => setIsBountyHunter(!isBountyHunter);
+
+    const selectBoard = (board) => {
+        setSelectedBoard(board);
+        setSelectedCourse(null);
+    };
+
+    const selectCourse = (course) => {
+        setSelectedCourse(course);
+        fetchCourseTasks(course.id);
+    };
+
+    const fetchCourseTasks = async (courseID) => {
+        setIsLoading(true);
         try {
-            const activeBoardsArray = await fetchBountyBoards();
-            setActiveBoards(activeBoardsArray);
-        } catch (error) {
-            console.error("Error fetching active boards: ", error);
+            const fetchedTasks = await fetchTasks(selectedBoard.id.toString(), courseID);
+            setTasks(fetchedTasks);
+            setError(null);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    useFocusEffect(
-        useCallback(() => {
-            getBountyBoards();
-        }, [])
+    const handlePostTask = async () => {
+        if (!taskTitle) {
+            Alert.alert("Error", "Please enter a task title.");
+            return;
+        }
+        if (!taskDescription) {
+            Alert.alert("Error", "Please enter a task description.");
+            return;
+        }
+        try {
+            await postTask(selectedBoard.id.toString(), selectedCourse.id, "UserID", selectedCourse.title, taskDescription);
+            Alert.alert("Task Posted", taskDescription);
+            setTaskDescription('');
+            fetchCourseTasks(selectedCourse.id);
+        } catch (error) {
+            Alert.alert("Error posting task", error.message);
+        }
+    };
+
+    const TaskForm = () => (
+        <View style={styles.form}>
+            <TextInput
+                style={styles.input}
+                onChangeText={setTaskTitle}
+                value={taskTitle}
+                placeholder="Enter task title"
+            />
+            <TextInput
+                style={styles.input}
+                onChangeText={setTaskDescription}
+                value={taskDescription}
+                placeholder="Enter task description"
+            />
+            <Button title="Post Task" onPress={handlePostTask} />
+        </View>
+    );
+
+    const TaskList = () => isLoading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+    ) : (
+        <FlatList
+            data={tasks}
+            keyExtractor={item => item.id.toString()}
+            renderItem={({ item }) => <Text style={styles.item}>{item.Description}</Text>}
+        />
     );
 
     return (
         <SafeAreaView style={styles.container}>
-            <FlatList
-                data={ActiveBoards}
-                keyExtractor={item => item.id.toString()}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        style={styles.item}
-                        onPress={() => navigation.navigate('EditGradePoints', { AttendingStudent: item })}
-                    >
-                        <Text style={styles.title}>{item.sector}</Text>
-                    </TouchableOpacity>
-                )}
-            />
-            {isBountyHunter ? (
-                <View style={styles.buttonContainer}>
-                    <Button title="BountyPoster" onPress={toggleBountyHunterMode} />
-                </View>
+            {!selectedBoard ? (
+                <FlatList
+                    data={activeBoards}
+                    keyExtractor={item => item.id.toString()}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity style={styles.item} onPress={() => selectBoard(item)}>
+                            <Text style={styles.title}>{item.name}</Text>
+                        </TouchableOpacity>
+                    )}
+                />
+            ) : !selectedCourse ? (
+                <FlatList
+                    data={selectedBoard.courses}
+                    keyExtractor={item => item.id.toString()}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity style={styles.item} onPress={() => selectCourse(item)}>
+                            <Text style={styles.title}>{item.title}</Text>
+                        </TouchableOpacity>
+                    )}
+                />
             ) : (
-                <View style={styles.buttonContainer}>
-                    <Button title="BountyHunter" onPress={toggleBountyHunterMode} />
+                <View>
+                    <Text style={styles.header}>{selectedCourse.title}</Text>
+                    {isBountyHunter ? <TaskList /> : <TaskForm />}
                 </View>
             )}
+            <View style={styles.buttonContainer}>
+                <Button title={isBountyHunter ? "Switch to Bounty Poster" : "Switch to Bounty Hunter"} onPress={toggleBountyHunterMode} />
+                {selectedCourse && (
+                    <Button title="Back to Courses" onPress={() => setSelectedCourse(null)} />
+                )}
+                {selectedBoard && !selectedCourse && (
+                    <Button title="Back to Boards" onPress={() => setSelectedBoard(null)} />
+                )}
+            </View>
         </SafeAreaView>
     );
 };
@@ -61,14 +140,13 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#cccccc',
     },
-    content: {
-        flex: 1,
-        justifyContent: 'top',
-        paddingHorizontal: 20,
+    header: {
+        fontSize: 24,
+        padding: 20,
+        textAlign: 'center',
     },
-    label: {
-        fontSize: 16,
-        marginBottom: 5,
+    form: {
+        padding: 20,
     },
     input: {
         height: 40,
@@ -77,10 +155,6 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         paddingHorizontal: 10,
         borderRadius: 5,
-    },
-    text: {
-        fontSize: 18,
-        marginBottom: 20,
     },
     buttonContainer: {
         padding: 20,
