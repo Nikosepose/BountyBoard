@@ -1,7 +1,7 @@
 {
   "boards": [
     {
-      "id": 1,
+      "id": "FYS",
       "name": "Fysikk",
       "courses": [
         {
@@ -17,7 +17,7 @@
       ]
     },
     {
-      "id": 2,
+      "id": "MA",
       "name": "Matte",
       "courses": [
         {
@@ -53,7 +53,7 @@
       ]
     },
     {
-      "id": 3,
+      "id": "IKT",
       "name": "IT",
       "courses": [
         {

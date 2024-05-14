@@ -1,12 +1,13 @@
 import {collection, doc, getDocs, setDoc, where, query, deleteDoc } from 'firebase/firestore';
 import { db, auth } from '../../src/config/firebaseConfig';
 
-export const postTask = async (boardID, courseID, UserID, title, description) => {
+export const createTask = async (boardID, courseID, UserID, title, description) => {
     try {
-        await setDoc(doc(db, 'BountyBoards', boardID, 'Courses', courseID),  {
+        await setDoc(doc(db, 'TaskManagement', boardID, 'Courses', courseID),  {
             CourseID: courseID,
             Title: title,
-            Description: description
+            Description: description,
+            Assignee: ""
         });
     } catch (error) {
         console.error("Error posting task: ", error);
