@@ -59,7 +59,7 @@ const ListView = () => {
 
     const handleApplyForTask = async () => {
         try {
-            await applyForTask(selectedTask.id); // Assumes applyForTask method is defined
+            await applyForTask(selectedBoard.id, selectedCourse.id, selectedTask.id); // Assumes applyForTask method is defined
             Alert.alert("Success", "You have successfully applied for the task.");
             setSelectedTask(null);
         } catch (error) {

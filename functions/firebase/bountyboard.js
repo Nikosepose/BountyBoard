@@ -1,4 +1,4 @@
-import {collection, doc, getDocs, setDoc, where, query, deleteDoc, Timestamp} from 'firebase/firestore';
+import {collection, doc, getDocs, setDoc, where, query, deleteDoc, updateDoc, Timestamp, addDoc} from 'firebase/firestore';
 import { db, auth } from '../../src/config/firebaseConfig';
 
 export const createTask = async (boardID, courseID, taskTitle, taskDescription) => {
@@ -11,7 +11,7 @@ export const createTask = async (boardID, courseID, taskTitle, taskDescription) 
     const UserID = user.uid; // Retrieve the user ID of the logged-in user
 
     try {
-        await setDoc(doc(db, 'TaskManagement', boardID, 'Courses', courseID, 'OpenTasks', taskTitle), {
+        const taskData = {
             CourseID: courseID,
             Title: taskTitle,
             Description: taskDescription,
@@ -19,8 +19,10 @@ export const createTask = async (boardID, courseID, taskTitle, taskDescription) 
             Assignee: '',
             Status: 'Open',
             createdAt: Timestamp.now()
-        });
-        console.log("Task successfully created with User ID:", UserID);
+        };
+
+        const docRef = await addDoc(collection(db, 'TaskManagement', boardID, 'Courses', courseID, 'OpenTasks'), taskData);
+        console.log("Task successfully created with ID:", docRef.id, "and User ID:", UserID);
     } catch (error) {
         console.error("Error posting task: ", error);
         throw new Error(error);
@@ -53,9 +55,23 @@ export const applyForTask = async (boardID, courseID, taskID) => {
     const user = auth.currentUser;
     if (!user) {
         console.error("No user logged in");
-        throw new Error("You must be logged in to create a task.");
+        throw new Error("You must be logged in to apply for a task.");
     }
     const UserID = user.uid; // Retrieve the user ID of the logged-in user
-    console.log("Applying with:", UserID, boardID, courseID, taskID);
+    console.log("Applying with:", boardID, courseID, taskID);
 
+    try {
+        const taskRef = doc(db, 'TaskManagement', boardID, 'Courses', courseID, 'OpenTasks', taskID);
+
+        // Update only the Assignee and Status fields
+        await updateDoc(taskRef, {
+            Assignee: UserID,
+            Status: 'Assigned'
+        });
+
+        console.log("Task successfully updated with User ID:", UserID);
+    } catch (error) {
+        console.error("Error updating task: ", error);
+        throw new Error('Failed to update task');
+    }
 };
