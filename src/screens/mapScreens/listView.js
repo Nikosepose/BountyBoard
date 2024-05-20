@@ -1,39 +1,37 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, SafeAreaView, Alert, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import boardsData from '../../data/data.json';
-import { postTask, fetchTasks} from "../../../functions/firebase/bountyboard";
+import { createTask, fetchTasks, applyForTask } from "../../../functions/firebase/bountyboard";
 
 const ListView = () => {
     const [activeBoards, setActiveBoards] = useState(boardsData.boards);
-
     const [selectedBoard, setSelectedBoard] = useState(null);
     const [selectedCourse, setSelectedCourse] = useState(null);
-
+    const [selectedTask, setSelectedTask] = useState(null);
     const [tasks, setTasks] = useState([]);
-
     const [taskTitle, setTaskTitle] = useState('');
     const [taskDescription, setTaskDescription] = useState('');
-
     const [isBountyHunter, setIsBountyHunter] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const toggleBountyHunterMode = () => setIsBountyHunter(!isBountyHunter);
 
-    const selectBoard = (board) => {
+    const selectBoard = board => {
         setSelectedBoard(board);
         setSelectedCourse(null);
     };
 
-    const selectCourse = (course) => {
+    const selectCourse = course => {
         setSelectedCourse(course);
         fetchCourseTasks(course.id);
     };
 
     const fetchCourseTasks = async (courseID) => {
+        if (!selectedBoard) return;
         setIsLoading(true);
         try {
-            const fetchedTasks = await fetchTasks(selectedBoard.id.toString(), courseID);
+            const fetchedTasks = await fetchTasks(selectedBoard.id, courseID);
             setTasks(fetchedTasks);
             setError(null);
         } catch (err) {
@@ -44,38 +42,35 @@ const ListView = () => {
     };
 
     const handlePostTask = async () => {
-        if (!taskTitle) {
-            Alert.alert("Error", "Please enter a task title.");
-            return;
-        }
-        if (!taskDescription) {
-            Alert.alert("Error", "Please enter a task description.");
+        if (!taskTitle || !taskDescription) {
+            Alert.alert("Error", "Please enter both a task title and description.");
             return;
         }
         try {
-            await postTask(selectedBoard.id.toString(), selectedCourse.id, "UserID", selectedCourse.title, taskDescription);
-            Alert.alert("Task Posted", taskDescription);
+            await createTask(selectedBoard.id, selectedCourse.id, taskTitle, taskDescription);
+            fetchCourseTasks(selectedCourse.id); // Refresh tasks after posting
+            setTaskTitle('');
             setTaskDescription('');
-            fetchCourseTasks(selectedCourse.id);
+            Alert.alert("Task Posted", taskDescription);
         } catch (error) {
             Alert.alert("Error posting task", error.message);
         }
     };
 
+    const handleApplyForTask = async () => {
+        try {
+            await applyForTask(selectedTask.id); // Assumes applyForTask method is defined
+            Alert.alert("Success", "You have successfully applied for the task.");
+            setSelectedTask(null);
+        } catch (error) {
+            Alert.alert("Error", "Failed to apply for the task.");
+        }
+    };
+
     const TaskForm = () => (
         <View style={styles.form}>
-            <TextInput
-                style={styles.input}
-                onChangeText={setTaskTitle}
-                value={taskTitle}
-                placeholder="Enter task title"
-            />
-            <TextInput
-                style={styles.input}
-                onChangeText={setTaskDescription}
-                value={taskDescription}
-                placeholder="Enter task description"
-            />
+            <TextInput style={styles.input} onChangeText={setTaskTitle} value={taskTitle} placeholder="Enter task title" />
+            <TextInput style={styles.input} onChangeText={setTaskDescription} value={taskDescription} placeholder="Enter task description" />
             <Button title="Post Task" onPress={handlePostTask} />
         </View>
     );
@@ -86,8 +81,21 @@ const ListView = () => {
         <FlatList
             data={tasks}
             keyExtractor={item => item.id.toString()}
-            renderItem={({ item }) => <Text style={styles.item}>{item.Description}</Text>}
+            renderItem={({ item }) => (
+                <TouchableOpacity style={styles.item} onPress={() => setSelectedTask(item)}>
+                    <Text style={styles.title}>{item.Title}</Text>
+                </TouchableOpacity>
+            )}
         />
+    );
+
+    const TaskDetails = () => (
+        <View style={styles.form}>
+            <Text style={styles.header}>{selectedTask.Title}</Text>
+            <Text>{selectedTask.Description}</Text>
+            <Button title="Apply for Task" color="green" onPress={handleApplyForTask} />
+            <Button title="Go Back to Tasks" color="red" onPress={() => setSelectedTask(null)} />
+        </View>
     );
 
     return (
@@ -112,6 +120,8 @@ const ListView = () => {
                         </TouchableOpacity>
                     )}
                 />
+            ) : selectedTask ? (
+                <TaskDetails />
             ) : (
                 <View>
                     <Text style={styles.header}>{selectedCourse.title}</Text>
@@ -157,7 +167,9 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     buttonContainer: {
-        padding: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginTop: 20,
     },
 });
 
