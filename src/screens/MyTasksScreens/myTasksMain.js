@@ -1,34 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { fetchOwnedUserTasks, fetchAssignedUserTasks } from "../../../functions/firebase/tasks";
 
 const MyTasksMain = () => {
     const [selectedButton, setSelectedButton] = useState('Helped');
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(false);
+    const navigation = useNavigation();
 
     const fetchTasks = async () => {
-        if (selectedButton === 'Helped') {
-            setLoading(true);
-            try {
-                const tasks = await fetchOwnedUserTasks();
-                setTasks(tasks);
-            } catch (error) {
-                console.error('Error fetching tasks:', error);
-            } finally {
-                setLoading(false);
-            }
-        }
-        else if (selectedButton === 'Helper') {
-            setLoading(true);
-            try {
-                const tasks = await fetchAssignedUserTasks();
-                setTasks(tasks);
-            } catch (error) {
-                console.error('Error fetching tasks:', error);
-            } finally {
-                setLoading(false);
-            }
+        setLoading(true);
+        try {
+            const tasks = selectedButton === 'Helped'
+                ? await fetchOwnedUserTasks()
+                : await fetchAssignedUserTasks();
+            setTasks(tasks);
+        } catch (error) {
+            console.error('Error fetching tasks:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -36,11 +27,17 @@ const MyTasksMain = () => {
         fetchTasks();
     }, [selectedButton]);
 
+    const handleTaskPress = (task) => {
+        navigation.navigate('TaskSelect', { task });
+    };
+
     const renderTaskItem = ({ item }) => (
-        <View style={styles.taskItem}>
-            <Text style={styles.taskTitle}>{item.Title}</Text>
-            <Text style={styles.taskDescription}>{item.Description}</Text>
-        </View>
+        <TouchableOpacity onPress={() => handleTaskPress(item)}>
+            <View style={styles.taskItem}>
+                <Text style={styles.taskTitle}>{item.Title}</Text>
+                <Text style={styles.taskDescription}>{item.Description}</Text>
+            </View>
+        </TouchableOpacity>
     );
 
     return (

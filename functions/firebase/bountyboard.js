@@ -12,6 +12,7 @@ export const createTask = async (boardID, courseID, taskTitle, taskDescription) 
 
     try {
         const taskData = {
+            BoardID: boardID,
             CourseID: courseID,
             Title: taskTitle,
             Description: taskDescription,
