@@ -1,5 +1,5 @@
 import { collection, addDoc, orderBy, query, onSnapshot, where } from "@firebase/firestore";
-import { auth, db } from "../../src/config/firebaseConfig";
+import { auth, db } from "./firebaseConfig";
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 

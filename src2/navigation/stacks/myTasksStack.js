@@ -1,7 +1,7 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import MyTasksMain from "../../screens/MyTasksScreens/myTasksMain";
-import TaskSelect from "../../screens/MyTasksScreens/myTasksSelect";
+import MyTasksMain from "../../components/myTasks/myTasksMain";
+import TaskSelect from "../../components/myTasks/myTasksSelect";
 
 
 export default function MyTasksStack() {

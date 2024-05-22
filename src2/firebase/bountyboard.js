@@ -1,5 +1,5 @@
 import {collection, doc, getDocs, setDoc, where, query, deleteDoc, updateDoc, Timestamp, addDoc} from 'firebase/firestore';
-import { db, auth } from '../../src/config/firebaseConfig';
+import { db, auth } from './firebaseConfig';
 
 export const createTask = async (boardID, courseID, taskTitle, taskDescription) => {
     // Check if there is a logged-in user
@@ -19,7 +19,8 @@ export const createTask = async (boardID, courseID, taskTitle, taskDescription) 
             CreatedBy: UserID,
             Assignee: '',
             Status: 'Open',
-            createdAt: Timestamp.now()
+            createdAt: Timestamp.now(),
+            Solution: ''
         };
 
         const docRef = await addDoc(collection(db, 'TaskManagement', boardID, 'Courses', courseID, 'OpenTasks'), taskData);

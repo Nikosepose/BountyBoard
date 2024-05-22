@@ -1,17 +1,16 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import MainProfileScreen from '../../screens/profileScreens/mainProfileScreen.js';
-import MapStack from "../stacks/mapStack";
+import MainProfileScreen from '../../components/profile/mainProfileScreen.js';
+import BoardStack from "../stacks/boardStack";
 import { Ionicons } from '@expo/vector-icons';
-import HeaderButtons from "../../components/common/headerButtons";
+import HeaderButtons from "./headerButtons";
 import LeaderboardStack from "../stacks/leaderboardStack";
-import ChatStack from "../stacks/chatStack";
 import ProfileStack from "../stacks/profileStack";
 import SettingsStack from "../stacks/settingsStack";
 import MyTasksStack from "../stacks/myTasksStack";
 
 
-export default function MyTabs() {
+export default function MyTabs({ user, onLogout }) {
     const Tab = createBottomTabNavigator();
     return (
         <Tab.Navigator
@@ -39,9 +38,11 @@ export default function MyTabs() {
             })}
         >
             <Tab.Screen name="Leaderboard" component={LeaderboardStack} />
-            <Tab.Screen name="Home" component={MapStack} />
+            <Tab.Screen name="Home" component={BoardStack} />
             <Tab.Screen name="MyTasks" component={MyTasksStack} />
-            <Tab.Screen name="Profile" component={ProfileStack} />
+            <Tab.Screen name="Profile">
+                {props => <ProfileStack {...props} user={user} onLogout={onLogout} />}
+            </Tab.Screen>
             <Tab.Screen
                 name="Settings"
                 component={SettingsStack}

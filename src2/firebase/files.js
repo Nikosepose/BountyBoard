@@ -1,6 +1,6 @@
 import { getFirestore, collection, getDocs, addDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../../src/config/firebaseConfig';
+import { db, storage } from './firebaseConfig';
 
 // Function to fetch files from Firestore
 export const fetchFiles = async (boardId, courseId, taskId) => {

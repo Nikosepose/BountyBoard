@@ -1,33 +1,44 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
-import * as Permissions from 'expo-permissions';
-import { fetchFiles, uploadFile } from '../../../functions/firebase/files'; // Adjust the path as necessary
+import * as MediaLibrary from 'expo-media-library';
+import { fetchFiles, uploadFile } from '../../firebase/files'; // Adjust the path as necessary
 
 const FilesContent = ({ task }) => {
     const [files, setFiles] = useState([]);
 
     useEffect(() => {
         const getFiles = async () => {
-            try {
-                const filesList = await fetchFiles(task.BoardID, task.CourseID, task.id);
-                setFiles(filesList);
-            } catch (error) {
-                console.error("Error fetching files: ", error);
-            }
+            const filesList = await fetchFiles(task.BoardID, task.CourseID, task.id);
+            setFiles(filesList);
         };
 
         getFiles();
-    }, [task]);
+
+        // Request permissions if necessary
+        if (Platform.OS === 'android') {
+            requestPermissions();
+        }
+    }, []);
+
+    const requestPermissions = async () => {
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+        if (status !== 'granted') {
+            alert('Sorry, we need media library permissions to make this work!');
+        }
+    };
 
     const handleUpload = async () => {
         try {
             const result = await DocumentPicker.getDocumentAsync({});
-            console.log(result);
+            console.log(result); // Log the result to see what properties it has
+
             if (result.canceled === false) {
                 const newFile = await uploadFile(result, task.BoardID, task.CourseID, task.id);
                 setFiles(prevFiles => [...prevFiles, newFile]);
+            } else {
+                console.error('Document picking was canceled or failed');
             }
         } catch (error) {
             console.error("Error uploading file: ", error);

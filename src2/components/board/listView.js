@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, SafeAreaView, Alert, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import boardsData from '../../data/data.json';
-import { createTask, fetchTasks, applyForTask } from "../../../functions/firebase/bountyboard";
+import { createTask, fetchTasks, applyForTask } from "../../firebase/bountyboard";
 
 const ListView = () => {
     const [activeBoards, setActiveBoards] = useState(boardsData.boards);

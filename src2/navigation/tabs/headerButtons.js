@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, View, Modal, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import SettingsStack from "../../navigation/stacks/settingsStack";
+import SettingsStack from "../stacks/settingsStack";
 
 const HeaderButtons = ({ navigation }) => {
     const [modalVisible, setModalVisible] = useState(false);

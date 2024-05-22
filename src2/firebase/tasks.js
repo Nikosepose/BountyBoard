@@ -1,5 +1,5 @@
 import {collection, doc, getDocs, getDoc, setDoc, where, query, deleteDoc, updateDoc, Timestamp} from 'firebase/firestore';
-import { db, auth } from '../../src/config/firebaseConfig';
+import { db, auth } from './firebaseConfig';
 
 export const fetchOwnedUserTasks = async () => {
     const user = auth.currentUser;

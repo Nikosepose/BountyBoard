@@ -1,6 +1,6 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import LeaderBoardMainScreen from "../../screens/leaderBoardScreens/mainLeaderBoardScreen";
+import LeaderBoardMainScreen from "../../components/leaderboard/mainLeaderBoardScreen";
 
 export default function LeaderboardStack() {
     const Stack = createStackNavigator();

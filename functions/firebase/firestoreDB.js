@@ -1,5 +1,5 @@
 import {collection, doc, getDocs, setDoc, where, query, deleteDoc } from 'firebase/firestore';
-import { db, auth } from '../../src/config/firebaseConfig';
+import { db, auth } from '../../src2/firebase/firebaseConfig';
 
 export const fetchBountyBoards = async () => {
     try {

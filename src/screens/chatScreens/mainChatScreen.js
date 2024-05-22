@@ -4,7 +4,7 @@ import { useRoute } from '@react-navigation/native';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import { collection, addDoc, orderBy, query, onSnapshot, where } from "@firebase/firestore";
-import { auth, db } from "../../config/firebaseConfig";
+import { auth, db } from "../../../src2/firebase/firebaseConfig";
 
 
 const MainChatScreen = () => {

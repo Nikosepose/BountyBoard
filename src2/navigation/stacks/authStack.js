@@ -1,12 +1,12 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import MainProfileScreen from '../../screens/profileScreens/mainProfileScreen.js';
+import AuthScreen from '../../components/auth/AuthScreen';
 
-export default function ProfileStack() {
+export default function AuthStack() {
     const Stack = createStackNavigator();
     return (
         <Stack.Navigator>
-            <Stack.Screen name="Main" component={MainProfileScreen} />
+            <Stack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }}/>
         </Stack.Navigator>
     );
 }

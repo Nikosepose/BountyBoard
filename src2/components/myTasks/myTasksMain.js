@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { fetchOwnedUserTasks, fetchAssignedUserTasks } from "../../../functions/firebase/tasks";
+import { fetchOwnedUserTasks, fetchAssignedUserTasks } from "../../firebase/tasks";
 
 const MyTasksMain = () => {
     const [selectedButton, setSelectedButton] = useState('Helped');

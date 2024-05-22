@@ -1,6 +1,6 @@
 import React, { useState, useLayoutEffect } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { sendMessage, subscribeToMessages } from '../../../functions/firebase/chat'
+import { sendMessage, subscribeToMessages } from '../../firebase/chat'
 
 const ChatContent = ({ task }) => {
     const [text, setText] = useState('');
