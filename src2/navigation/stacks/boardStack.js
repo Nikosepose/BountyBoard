@@ -1,12 +1,17 @@
 import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
-import ListView from "../../components/board/listView";
+import { createStackNavigator } from '@react-navigation/stack';
+import BoardSelectionScreen from '../../components/board/BoardSelectionScreen';
+import CourseSelectionScreen from '../../components/board/CourseSelectionScreen';
+import TaskScreen from '../../components/board/TaskScreen';
+
+const Stack = createStackNavigator();
 
 export default function BoardStack() {
-    const Stack = createStackNavigator();
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="ListView" component={ListView} />
+            <Stack.Screen name="BoardSelection" component={BoardSelectionScreen} />
+            <Stack.Screen name="CourseSelection" component={CourseSelectionScreen} />
+            <Stack.Screen name="TaskScreen" component={TaskScreen} />
         </Stack.Navigator>
     );
 }

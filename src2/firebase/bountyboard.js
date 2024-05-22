@@ -1,7 +1,7 @@
 import {collection, doc, getDocs, setDoc, where, query, deleteDoc, updateDoc, Timestamp, addDoc} from 'firebase/firestore';
 import { db, auth } from './firebaseConfig';
 
-export const createTask = async (boardID, courseID, taskTitle, taskDescription) => {
+export const createTask = async (boardID, courseID, taskTitle, taskDescription, bounty) => {
     // Check if there is a logged-in user
     const user = auth.currentUser;
     if (!user) {
@@ -16,6 +16,7 @@ export const createTask = async (boardID, courseID, taskTitle, taskDescription) 
             CourseID: courseID,
             Title: taskTitle,
             Description: taskDescription,
+            Bounty: bounty,
             CreatedBy: UserID,
             Assignee: '',
             Status: 'Open',

@@ -22,7 +22,7 @@ const TaskSelect = () => {
             case 'files':
                 return <FilesContent task={task}/>;
             case 'solution':
-                return <SolutionContent task={task}/>;
+                return <SolutionContent task={task} handleSwitchTask={handleSwitchTask}/>;
             default:
                 return null;
         }

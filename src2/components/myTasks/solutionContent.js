@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { getLoggedInUser, updateSolution } from '../../firebase/solution'; // Adjust the path as necessary
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { getLoggedInUser, updateSolution, updateTaskStatus } from '../../firebase/solution'; // Adjust the path as necessary
 
-const SolutionContent = ({ task, onSolutionUpdate }) => {
+const SolutionContent = ({ task, onSolutionUpdate, handleSwitchTask}) => {
     const [solution, setSolution] = useState(task.Solution || '');
     const [isEditing, setIsEditing] = useState(false);
     const currentUser = getLoggedInUser();
@@ -19,21 +18,66 @@ const SolutionContent = ({ task, onSolutionUpdate }) => {
     const handleSaveSolution = async () => {
         try {
             await updateSolution(task.BoardID, task.CourseID, task.id, solution);
+            await updateTaskStatus(task.BoardID, task.CourseID, task.id, 'Pending');
             setIsEditing(false);
             onSolutionUpdate && onSolutionUpdate(solution);
+            handleSwitchTask();
         } catch (error) {
             console.error('Error saving solution:', error);
         }
     };
 
-    const handleAcceptSolution = () => {
-        // Handle the acceptance logic
-        console.log('Solution accepted');
+    const handleCancelTask = async () => {
+        try {
+            await updateTaskStatus(task.BoardID, task.CourseID, task.id, 'Canceled');
+            console.log('Task canceled');
+        } catch (error) {
+            console.error('Error canceling task:', error);
+        }
+    };
+
+    const handleAcceptSolution = async () => {
+        try {
+            await updateTaskStatus(task.BoardID, task.CourseID, task.id, 'Completed');
+            console.log('Solution accepted');
+        } catch (error) {
+            console.error('Error accepting solution:', error);
+        }
     };
 
     const handleRejectSolution = () => {
-        // Handle the rejection logic
-        console.log('Solution rejected');
+        Alert.alert(
+            "Reject Solution",
+            "Do you want to allow the assignee to retry?",
+            [
+                {
+                    text: "Yes",
+                    onPress: () => console.log('Solution rejected, retry allowed')
+                },
+                {
+                    text: "No, keep open",
+                    onPress: async () => {
+                        try {
+                            await updateTaskStatus(task.BoardID, task.CourseID, task.id, 'Open');
+                            console.log('Solution rejected, task kept open');
+                        } catch (error) {
+                            console.error('Error updating status to open:', error);
+                        }
+                    }
+                },
+                {
+                    text: "No, cancel task",
+                    onPress: async () => {
+                        try {
+                            await updateTaskStatus(task.BoardID, task.CourseID, task.id, 'Canceled');
+                            console.log('Solution rejected, task canceled');
+                        } catch (error) {
+                            console.error('Error updating status to canceled:', error);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     return (
@@ -43,28 +87,44 @@ const SolutionContent = ({ task, onSolutionUpdate }) => {
                 <View style={styles.solutionContainer}>
                     {isEditing ? (
                         <>
-                            <TextInput
-                                style={styles.input}
-                                value={solution}
-                                onChangeText={handleSolutionChange}
-                                multiline
-                            />
-                            <TouchableOpacity style={styles.button} onPress={handleSaveSolution}>
-                                <Text style={styles.buttonText}>Save Solution</Text>
-                            </TouchableOpacity>
+                            <ScrollView style={styles.scrollView}>
+                                <TextInput
+                                    style={styles.input}
+                                    value={solution}
+                                    onChangeText={handleSolutionChange}
+                                    multiline
+                                />
+                            </ScrollView>
+                            <View style={styles.buttonContainer}>
+                                <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleSaveSolution}>
+                                    <Text style={styles.buttonText}>Post Solution</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => setIsEditing(false)}>
+                                    <Text style={styles.buttonText}>Cancel</Text>
+                                </TouchableOpacity>
+                            </View>
                         </>
                     ) : (
                         <>
-                            <Text style={styles.solutionText}>{solution}</Text>
-                            <TouchableOpacity style={styles.button} onPress={() => setIsEditing(true)}>
-                                <Text style={styles.buttonText}>Edit Solution</Text>
-                            </TouchableOpacity>
+                            <ScrollView style={styles.scrollView}>
+                                <Text style={styles.solutionText}>{solution}</Text>
+                            </ScrollView>
+                            <View style={styles.buttonContainer}>
+                                <TouchableOpacity style={[styles.button, styles.cancelTaskButton]} onPress={handleCancelTask}>
+                                    <Text style={styles.buttonText}>Cancel Task</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[styles.button, styles.editButton]} onPress={() => setIsEditing(true)}>
+                                    <Text style={styles.buttonText}>Edit Solution</Text>
+                                </TouchableOpacity>
+                            </View>
                         </>
                     )}
                 </View>
             ) : currentUser === task.CreatedBy ? (
                 <View style={styles.solutionContainer}>
-                    <Text style={styles.solutionText}>{solution}</Text>
+                    <ScrollView style={styles.scrollView}>
+                        <Text style={styles.solutionText}>{solution}</Text>
+                    </ScrollView>
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity style={[styles.button, styles.acceptButton]} onPress={handleAcceptSolution}>
                             <Text style={styles.buttonText}>Accept</Text>
@@ -75,7 +135,9 @@ const SolutionContent = ({ task, onSolutionUpdate }) => {
                     </View>
                 </View>
             ) : (
-                <Text style={styles.solutionText}>{solution}</Text>
+                <ScrollView style={styles.scrollView}>
+                    <Text style={styles.solutionText}>{solution}</Text>
+                </ScrollView>
             )}
         </View>
     );
@@ -101,6 +163,9 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 1 },
         shadowRadius: 8,
         elevation: 2,
+    },
+    scrollView: {
+        maxHeight: 300,
     },
     input: {
         height: 150,
@@ -134,6 +199,18 @@ const styles = StyleSheet.create({
     },
     rejectButton: {
         backgroundColor: '#dc3545',
+    },
+    cancelTaskButton: {
+        backgroundColor: '#dc3545',
+    },
+    editButton: {
+        backgroundColor: '#007bff',
+    },
+    saveButton: {
+        backgroundColor: '#28a745',
+    },
+    cancelButton: {
+        backgroundColor: '#6c757d',
     },
 });
 
