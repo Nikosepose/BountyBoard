@@ -1,7 +1,8 @@
+// components/settings/MainSettingsScreen.js
 import React, { useState } from 'react';
 import { View, Text, Switch, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 
-const SettingsScreen = ({ navigation }) => {
+const MainSettingsScreen = ({ navigation }) => {
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
@@ -9,19 +10,8 @@ const SettingsScreen = ({ navigation }) => {
         <ScrollView style={styles.container}>
             <Text style={styles.title}>Settings</Text>
 
-            <View style={styles.settingItem}>
-                <Text style={styles.settingText}>Enable Notifications</Text>
-                <Switch
-                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                    thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
-                    ios_backgroundColor="#3e3e3e"
-                    onValueChange={toggleSwitch}
-                    value={isEnabled}
-                />
-            </View>
-
-            <TouchableOpacity style={styles.settingItem} onPress={() => navigation.navigate('AccountSettings')}>
-                <Text style={styles.settingText}>Account Settings</Text>
+            <TouchableOpacity style={styles.settingItem} onPress={() => navigation.navigate('Notifications')}>
+                <Text style={styles.settingText}>Notification Settings</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.settingItem} onPress={() => navigation.navigate('PrivacyPolicy')}>
@@ -61,4 +51,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default SettingsScreen;
+export default MainSettingsScreen;

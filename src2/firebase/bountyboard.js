@@ -33,18 +33,28 @@ export const createTask = async (boardID, courseID, taskTitle, taskDescription, 
 };
 
 export const fetchTasks = async (boardID, courseID) => {
+    const user = auth.currentUser;
+    if (!user) {
+        console.error("No user logged in");
+        throw new Error("You must be logged in to create a task.");
+    }
+    const UserID = user.uid; // Retrieve the user ID of the logged-in user
+
     try {
         const tasksRef = collection(db, 'TaskManagement', boardID, 'Courses', courseID, 'OpenTasks');
-        console.log("Tasks reference (tasksRef):", tasksRef);
 
+        // Query to get all tasks
         const querySnapshot = await getDocs(tasksRef);
-        console.log("Query Snapshot:", querySnapshot);
 
-        const tasksArray = querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
-        console.log("Tasks Array:", tasksArray);
+        // Filter tasks where UserID is not equal to CreatorID
+        const tasksArray = querySnapshot.docs
+            .map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }))
+            .filter(task => task.CreatedBy !== UserID && task.Assignee !== UserID);
+
+        console.log("Filtered Tasks Array:", tasksArray);
 
         return tasksArray;
     } catch (error) {
@@ -52,6 +62,7 @@ export const fetchTasks = async (boardID, courseID) => {
         throw new Error('Failed to fetch tasks');
     }
 };
+
 
 export const applyForTask = async (boardID, courseID, taskID) => {
     // Check if there is a logged-in user

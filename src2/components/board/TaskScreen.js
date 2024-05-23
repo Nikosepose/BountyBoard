@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, SafeAreaView, TouchableHighlight, ScrollView } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { fetchTasks, createTask, applyForTask } from '../../firebase/bountyboard';
 import { fetchBalance } from '../../firebase/balance';
+import { Ionicons } from '@expo/vector-icons'; // Using Ionicons for the back arrow
 
 const TaskScreen = ({ route, navigation }) => {
     const { board, course } = route.params;
@@ -74,25 +75,6 @@ const TaskScreen = ({ route, navigation }) => {
 
     const toggleBountyHunterMode = () => setIsBountyHunter(!isBountyHunter);
 
-    const TaskForm = () => (
-        <View style={styles.form}>
-            <TextInput style={styles.input} onChangeText={setTaskTitle} value={taskTitle} placeholder="Enter task title" />
-            <TextInput style={styles.input} onChangeText={setTaskDescription} value={taskDescription} placeholder="Enter task description" />
-            <View style={styles.sliderContainer}>
-                <Text>Bounty: {sliderValue}</Text>
-                <Slider
-                    style={styles.slider}
-                    minimumValue={0}
-                    maximumValue={balance}
-                    value={sliderValue}
-                    onValueChange={setSliderValue}
-                    step={1}
-                />
-            </View>
-            <Button title="Post Task" onPress={handlePostTask} />
-        </View>
-    );
-
     const TaskList = () => isLoading ? (
         <ActivityIndicator size="large" color="#0000ff" />
     ) : (
@@ -108,26 +90,75 @@ const TaskScreen = ({ route, navigation }) => {
     );
 
     const TaskDetails = () => (
-        <View style={styles.form}>
-            <Text style={styles.header}>{selectedTask.Title}</Text>
-            <Text>{selectedTask.Description}</Text>
-            <Button title="Apply for Task" onPress={handleApplyForTask} />
-            <Button title="Back to Tasks" onPress={() => setSelectedTask(null)} />
+        <View style={styles.detailsContainer}>
+            <Text style={styles.detailsTitle}>{selectedTask.Title}</Text>
+            <ScrollView style={styles.detailsContent}>
+                <Text>{selectedTask.Description}</Text>
+                <Text style={styles.bountyText}>Bounty: {selectedTask.Bounty}</Text>
+                <Text style={styles.createdAtText}>Created At: {new Date(selectedTask.CreatedAt).toLocaleDateString()}</Text>
+            </ScrollView>
+            <View style={styles.detailsButtonContainer}>
+                <TouchableHighlight
+                    style={[styles.detailsButton, styles.taskBackButton]}
+                    onPress={() => setSelectedTask(null)}
+                >
+                    <Text style={styles.detailsButtonText}>Back to Tasks</Text>
+                </TouchableHighlight>
+                <TouchableHighlight
+                    style={[styles.detailsButton, styles.applyButton]}
+                    onPress={handleApplyForTask}
+                >
+                    <Text style={styles.detailsButtonText}>Apply for Task</Text>
+                </TouchableHighlight>
+            </View>
         </View>
     );
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.header}>{course.title}</Text>
+            <View style={styles.headerContainer}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                    <Ionicons name="arrow-back" size={24} color="black" />
+                </TouchableOpacity>
+                <Text style={styles.header}>{course.title}</Text>
+            </View>
             {selectedTask ? (
                 <TaskDetails />
             ) : (
-                isBountyHunter ? <TaskList /> : <TaskForm />
+                isBountyHunter ? <TaskList /> :
+                    <View style={styles.form}>
+                        <TextInput style={styles.input} onChangeText={setTaskTitle} value={taskTitle} placeholder="Enter task title" />
+                        <TextInput style={styles.input} onChangeText={setTaskDescription} value={taskDescription} placeholder="Enter task description" />
+                        <View style={styles.sliderContainer}>
+                            <Text>Bounty: {sliderValue}</Text>
+                            <Slider
+                                style={styles.slider}
+                                minimumValue={0}
+                                maximumValue={balance}
+                                value={sliderValue}
+                                onValueChange={setSliderValue}
+                                step={1}
+                            />
+                        </View>
+                        <Button title="Post Task" onPress={handlePostTask} />
+                    </View>
             )}
-            <View style={styles.buttonContainer}>
-                <Button title={isBountyHunter ? "Switch to Bounty Poster" : "Switch to Bounty Hunter"} onPress={toggleBountyHunterMode} />
-                <Button title="Back to Courses" onPress={() => navigation.goBack()} />
-            </View>
+            {!selectedTask && (
+                <View style={styles.footerContainer}>
+                    <TouchableHighlight
+                        style={[styles.footerButton, isBountyHunter && styles.selectedButton]}
+                        onPress={() => setIsBountyHunter(true)}
+                    >
+                        <Text style={styles.footerButtonText}>Bounty Hunter</Text>
+                    </TouchableHighlight>
+                    <TouchableHighlight
+                        style={[styles.footerButton, !isBountyHunter && styles.selectedButton]}
+                        onPress={() => setIsBountyHunter(false)}
+                    >
+                        <Text style={styles.footerButtonText}>Bounty Poster</Text>
+                    </TouchableHighlight>
+                </View>
+            )}
         </SafeAreaView>
     );
 };
@@ -136,6 +167,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
+    },
+    headerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     form: {
         padding: 20,
@@ -155,11 +191,6 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 40,
     },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginTop: 20,
-    },
     item: {
         padding: 20,
         borderBottomWidth: 1,
@@ -172,6 +203,77 @@ const styles = StyleSheet.create({
         fontSize: 24,
         marginBottom: 20,
         textAlign: 'center',
+    },
+    title: {
+        fontSize: 18,
+    },
+    backButton: {
+        padding: 10,
+    },
+    footerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginTop: 20,
+        position: 'absolute',
+        bottom: 20,
+        width: '100%',
+        paddingHorizontal: 20,
+    },
+    footerButton: {
+        padding: 15,
+        backgroundColor: '#f0f0f0',
+        borderRadius: 5,
+        flex: 1,
+        marginHorizontal: 5,
+        alignItems: 'center',
+    },
+    selectedButton: {
+        backgroundColor: '#35aadc',
+    },
+    footerButtonText: {
+        fontSize: 16,
+    },
+    detailsContainer: {
+        flex: 1,
+        padding: 20,
+    },
+    detailsTitle: {
+        fontSize: 24,
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    detailsContent: {
+        flex: 1,
+    },
+    bountyText: {
+        fontSize: 16,
+        marginVertical: 10,
+    },
+    createdAtText: {
+        fontSize: 14,
+        marginVertical: 10,
+    },
+    detailsButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 20,
+    },
+    detailsButton: {
+        flex: 1,
+        padding: 15,
+        borderRadius: 30,
+        marginHorizontal: 10,
+        alignItems: 'center',
+    },
+    taskBackButton: {
+        backgroundColor: 'red',
+    },
+    applyButton: {
+        backgroundColor: 'green',
+    },
+    detailsButtonText: {
+        color: 'white',
+        fontSize: 16,
     },
 });
 

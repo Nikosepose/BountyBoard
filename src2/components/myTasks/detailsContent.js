@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 
 const DetailsContent = ({ task }) => {
     const createdAt = task.createdAt.toDate();  // Convert Firestore timestamp to JavaScript Date
@@ -7,18 +7,17 @@ const DetailsContent = ({ task }) => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>{task.Title}</Text>
+            <Text style={styles.label}>Bounty:</Text>
+            <Text style={styles.info}>${task.Bounty}</Text>
             <Text style={styles.label}>Description:</Text>
-            <Text style={styles.description}>{task.Description}</Text>
-
-            <Text style={styles.label}>Payment:</Text>
-            <Text style={styles.info}>${task.Payment}</Text>
-
+            <ScrollView style={styles.descriptionContainer}>
+                <Text style={styles.description}>{task.Description}</Text>
+            </ScrollView>
             <Text style={styles.label}>Task Created On:</Text>
             <Text style={styles.info}>{createdAt.toLocaleDateString()} {createdAt.toLocaleTimeString()}</Text>
         </View>
     );
 };
-
 
 const styles = StyleSheet.create({
     container: {
@@ -43,6 +42,10 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#555',
         marginTop: 15,
+    },
+    descriptionContainer: {
+        flex: 1,
+        marginVertical: 10,
     },
     description: {
         fontSize: 16,

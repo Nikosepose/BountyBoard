@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { fetchOwnedUserTasks, fetchAssignedUserTasks } from "../../firebase/tasks";
+import { fetchOwnedUserTasks, fetchAssignedUserTasks, fetchPendingTasks, deleteTask } from "../../firebase/tasks";
 
 const MyTasksMain = () => {
-    const [selectedButton, setSelectedButton] = useState('Helped');
+    const [selectedButton, setSelectedButton] = useState('Owned');
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(false);
     const navigation = useNavigation();
@@ -12,9 +12,14 @@ const MyTasksMain = () => {
     const fetchTasks = async () => {
         setLoading(true);
         try {
-            const tasks = selectedButton === 'Helped'
-                ? await fetchOwnedUserTasks()
-                : await fetchAssignedUserTasks();
+            let tasks;
+            if (selectedButton === 'Owned') {
+                tasks = await fetchOwnedUserTasks();
+            } else if (selectedButton === 'Assigned') {
+                tasks = await fetchAssignedUserTasks();
+            } else if (selectedButton === 'Pending') {
+                tasks = await fetchPendingTasks();
+            }
             setTasks(tasks);
         } catch (error) {
             console.error('Error fetching tasks:', error);
@@ -28,7 +33,33 @@ const MyTasksMain = () => {
     }, [selectedButton]);
 
     const handleTaskPress = (task) => {
-        navigation.navigate('TaskSelect', { task });
+        if (selectedButton === 'Pending') {
+            Alert.alert(
+                "Delete Task",
+                "Do you want to delete this task?",
+                [
+                    {
+                        text: "Cancel",
+                        style: "cancel"
+                    },
+                    {
+                        text: "Yes",
+                        onPress: () => handleDeleteTask(task)
+                    }
+                ]
+            );
+        } else {
+            navigation.navigate('TaskSelect', { task });
+        }
+    };
+
+    const handleDeleteTask = async (task) => {
+        try {
+            await deleteTask(task.BoardID, task.CourseID, task.id);
+            fetchTasks(); // Refresh the tasks list
+        } catch (error) {
+            console.error('Error deleting task:', error);
+        }
     };
 
     const renderTaskItem = ({ item }) => (
@@ -46,29 +77,43 @@ const MyTasksMain = () => {
                 <TouchableOpacity
                     style={[
                         styles.button,
-                        selectedButton === 'Helped' && styles.selectedButton
+                        selectedButton === 'Pending' && styles.selectedButton
                     ]}
-                    onPress={() => setSelectedButton('Helped')}
+                    onPress={() => setSelectedButton('Pending')}
                 >
                     <Text style={[
                         styles.buttonText,
-                        selectedButton === 'Helped' && styles.selectedButtonText
+                        selectedButton === 'Pending' && styles.selectedButtonText
                     ]}>
-                        Helped
+                        Pending
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[
                         styles.button,
-                        selectedButton === 'Helper' && styles.selectedButton
+                        selectedButton === 'Owned' && styles.selectedButton
                     ]}
-                    onPress={() => setSelectedButton('Helper')}
+                    onPress={() => setSelectedButton('Owned')}
                 >
                     <Text style={[
                         styles.buttonText,
-                        selectedButton === 'Helper' && styles.selectedButtonText
+                        selectedButton === 'Owned' && styles.selectedButtonText
                     ]}>
-                        Helper
+                        Owned
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[
+                        styles.button,
+                        selectedButton === 'Assigned' && styles.selectedButton
+                    ]}
+                    onPress={() => setSelectedButton('Assigned')}
+                >
+                    <Text style={[
+                        styles.buttonText,
+                        selectedButton === 'Assigned' && styles.selectedButtonText
+                    ]}>
+                        Assigned
                     </Text>
                 </TouchableOpacity>
             </View>

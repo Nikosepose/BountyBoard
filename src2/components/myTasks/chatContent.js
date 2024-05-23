@@ -9,7 +9,7 @@ const ChatContent = ({ task }) => {
     const handleSendMessage = async () => {
         if (text) {
             try {
-                const newMessage = await sendMessage(text, task.Assignee, task.BoardID, task.CourseID, task.id);
+                const newMessage = await sendMessage(text, task.Assignee, task.CreatedBy, task.BoardID, task.CourseID, task.id);
                 setMessages(prevMessages => [...prevMessages, newMessage]);
                 setText('');
             } catch (error) {
@@ -19,7 +19,7 @@ const ChatContent = ({ task }) => {
     };
 
     useLayoutEffect(() => {
-        const unsubscribe = subscribeToMessages(task.Assignee, setMessages, task.BoardID, task.CourseID, task.id);
+        const unsubscribe = subscribeToMessages(task.Assignee, task.CreatedBy, setMessages, task.BoardID, task.CourseID, task.id);
         return () => unsubscribe();
     }, [task.Assignee]);
 

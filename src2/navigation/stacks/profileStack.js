@@ -6,7 +6,7 @@ export default function ProfileStack({ user, onLogout }) {
     const Stack = createStackNavigator();
     return (
         <Stack.Navigator>
-            <Stack.Screen name="Main">
+            <Stack.Screen name="Main" options={{ headerShown: false }}>
                 {props => <MainProfileScreen {...props} user={user} onLogout={onLogout} />}
             </Stack.Screen>
         </Stack.Navigator>

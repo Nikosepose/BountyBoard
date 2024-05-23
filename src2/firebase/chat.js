@@ -3,17 +3,27 @@ import { auth, db } from "./firebaseConfig";
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 
-export const sendMessage = async (text, selectedUserId, boardId, courseId, taskId) => {
+export const sendMessage = async (text, assignee, createdBy, boardId, courseId, taskId) => {
+    const user = auth.currentUser;
+    if (!user) {
+        console.error("No user logged in");
+        throw new Error("You must be logged in to create a task.");
+    }
+    const UserID = user.uid;
+
+    // Determine the recipient based on the logged-in user's role
+    const receivedUserId = UserID === assignee ? createdBy : assignee;
+
     const newMessage = {
         type: 'sent',
         text: text,
         createdAt: new Date(),
         user: {
-            _id: auth?.currentUser?.uid,
-            name: auth?.currentUser?.displayName || "Anonymous",
+            _id: UserID,
+            name: user.displayName || "Anonymous",
         },
         receivedUser: {
-            _id: selectedUserId
+            _id: receivedUserId,
         }
     };
 
@@ -29,17 +39,23 @@ export const sendMessage = async (text, selectedUserId, boardId, courseId, taskI
     }
 };
 
-export const subscribeToMessages = (selectedUserId, callback, boardId, courseId, taskId) => {
-    if (!auth.currentUser) {
+export const subscribeToMessages = (assignee, createdBy, callback, boardId, courseId, taskId) => {
+    const user = auth.currentUser;
+    if (!user) {
         console.log("User not authenticated");
         return;
     }
 
+    const UserID = user.uid;
+
+    // Determine the recipient based on the logged-in user's role
+    const selectedUserId = UserID === assignee ? createdBy : assignee;
+
     const collectionRef = collection(db, 'TaskManagement', boardId, 'Courses', courseId, 'AssignedTasks', taskId, 'chat');
     const q = query(
         collectionRef,
-        where('user._id', 'in', [auth.currentUser.uid, selectedUserId]),
-        where('receivedUser._id', 'in', [selectedUserId, auth.currentUser.uid]),
+        where('user._id', 'in', [UserID, selectedUserId]),
+        where('receivedUser._id', 'in', [selectedUserId, UserID]),
         orderBy('createdAt', 'asc')
     );
 
@@ -47,7 +63,7 @@ export const subscribeToMessages = (selectedUserId, callback, boardId, courseId,
         const loadedMessages = snapshot.docs.map(doc => ({
             ...doc.data(),
             id: doc.id,
-            type: doc.data().user._id === auth.currentUser?.uid ? 'sent' : 'received',
+            type: doc.data().user._id === UserID ? 'sent' : 'received',
         }));
         callback(loadedMessages);
     }, error => {
