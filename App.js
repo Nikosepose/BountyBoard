@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
-import MyTabs from "./src2/navigation/tabs/myTabs";
-import AuthStack from "./src2/navigation/stacks/authStack";
-import { auth } from './src2/firebase/firebaseConfig';
+import MyTabs from "./src/navigation/tabs/myTabs";
+import AuthStack from "./src/navigation/stacks/authStack";
+import { auth } from './src/firebase/firebaseConfig';
 
 export default function App() {
     const Stack = createStackNavigator();

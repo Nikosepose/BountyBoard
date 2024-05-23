@@ -1,0 +1,77 @@
+{
+  "boards": [
+    {
+      "id": "FYS",
+      "name": "Fysikk",
+      "courses": [
+        {
+          "id": "FYS002",
+          "title": "Fysikk oppgradering",
+          "description": "Problemer innen Fysikk oppgradering"
+        },
+        {
+          "id": " FYS129",
+          "title": "Fysikk for IKT",
+          "description": "Problemer innen Fysikk for IKT"
+        }
+      ]
+    },
+    {
+      "id": "MA",
+      "name": "Matte",
+      "courses": [
+        {
+          "id": "MA-006",
+          "title": "Matematikk oppgradering 1",
+          "description": "Problemer innen Matematikk oppgradering 1"
+        },
+        {
+          "id": "MA-007",
+          "title": "Matematikk oppgradering 2",
+          "description": "Problemer innen Matematikk oppgradering 1"
+        },
+        {
+          "id": "MA-178",
+          "title": "Matematikk 1",
+          "description": "Problemer innen Matematikk 1"
+        },
+        {
+          "id": "MA-179",
+          "title": "Matematikk 2",
+          "description": "Problemer innen Matematikk 2"
+        },
+        {
+          "id": "MA-180",
+          "title": "Diskret matematikk 1",
+          "description": "Problemer innen Diskret matematikk 1"
+        },
+        {
+          "id": "MA-223",
+          "title": "Statistikk",
+          "description": "Problemer innen Statistikk"
+        }
+      ]
+    },
+    {
+      "id": "IKT",
+      "name": "IT",
+      "courses": [
+        {
+          "id": "IKT100",
+          "title": "Nettverk, sikkerhet og personvern",
+          "description": "Få hjelp med Nettverk, sikkerhet og personvern"
+        },
+        {
+          "id": "IKT101",
+          "title": "Grunnleggende softwareutvikling",
+          "description": "Få hjelp med lette problemer innen koding"
+        },
+        {
+          "id": "IKT102",
+          "title": "Operativsystemer",
+          "description": "Få hjelp med lette problemer innen Operativsystemer"
+        }
+      ]
+    }
+  ]
+}
