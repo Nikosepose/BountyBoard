@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { fetchOwnedUserTasks, fetchAssignedUserTasks, fetchPendingTasks, deleteTask } from "../../firebase/tasks";
+import {auth} from "../../firebase/firebaseConfig";
+import {getUserData} from "../../firebase/user";
 
 const MyTasksMain = () => {
     const [selectedButton, setSelectedButton] = useState('Owned');
@@ -28,9 +31,11 @@ const MyTasksMain = () => {
         }
     };
 
-    useEffect(() => {
-        fetchTasks();
-    }, [selectedButton]);
+    useFocusEffect(
+        useCallback(() => {
+            fetchTasks();
+        }, [selectedButton])
+    );
 
     const handleTaskPress = (task) => {
         if (selectedButton === 'Pending') {
