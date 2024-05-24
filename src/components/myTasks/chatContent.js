@@ -5,7 +5,7 @@ import { sendMessage, subscribeToMessages } from '../../firebase/chat'
 const ChatContent = ({ task }) => {
     const [text, setText] = useState('');
     const [messages, setMessages] = useState([]);
-
+//send message function
     const handleSendMessage = async () => {
         if (text) {
             try {
@@ -17,7 +17,7 @@ const ChatContent = ({ task }) => {
             }
         }
     };
-
+//subscribe to messages
     useLayoutEffect(() => {
         const unsubscribe = subscribeToMessages(task.Assignee, task.CreatedBy, setMessages, task.BoardID, task.CourseID, task.id);
         return () => unsubscribe();
